@@ -10,9 +10,18 @@ const Image = ol.layer.Image
 const VectorTile = ol.layer.VectorTile
 
 const layerCreator = (layerOptions: Layer): Function => (layerClass: Class<*>): Object => {
-  return new layerClass(assign({}, layerOptions, {
-    source: parseSource(layerOptions.source)
-  }))
+  const source = parseSource(layerOptions.source)
+  let sourceOptions = {}
+  if (Promise.resolve(source) == source){
+    return new Promise((resolve, reject) => {
+      source.then((source) => {
+         resolve(new layerClass(assign({}, layerOptions, { source: source })))
+      }).catch(reject)
+    })
+  } else {
+    return new layerClass(assign({}, layerOptions, { source: source }))
+  }
+  
 }
 
 const parseLayer = (layerOptions: Layer): Object => {

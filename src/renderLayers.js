@@ -64,6 +64,19 @@ const attachVectorData = (olLayer: Object, geoJSON: ?Object, projection: Object)
 export const addLayer = (map: Map) => (layer: Layer): Object => {
   const olLayer = parseLayer(layer)
 
+  if(Promise.resolve(olLayer) == olLayer) {
+    olLayer.then((asyncLayer) => { 
+      console.log(asyncLayer)
+      addParsedLayer(map, layer, asyncLayer)
+      console.log(asyncLayer.getSource())
+    })
+    return {}
+  }
+
+  return addParsedLayer(map, layer, olLayer)
+}
+
+const addParsedLayer = (map: Map, layer: Layer, olLayer: Object) => {
   if (isVectorDataLayer(layer)) {
     attachVectorData(olLayer, layer.source.data, map.getView().getProjection())
   }
